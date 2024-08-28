@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Data</title>
+    <script src="https://unpkg.com/graphql-tag@2.12.0/dist/graphql-tag.umd.js"></script>
+    <script src="https://unpkg.com/apollo-client@2.6.10/dist/apollo-client.umd.js"></script>
+    <script src="https://unpkg.com/apollo-link-http@1.5.17/dist/apollo-link-http.umd.js"></script>
+    <script src="https://unpkg.com/apollo-cache-inmemory@1.6.6/dist/apollo-cache-inmemory.umd.js"></script>
+    <script src="https://unpkg.com/apollo-link@1.2.13/dist/apollo-link.umd.js"></script>
+</head>
+<body>
+    <h1>Music Data</h1>
+    <h2>Artists</h2>
+    <ul id="artists"></ul>
+    <h2>Albums</h2>
+    <ul id="albums"></ul>
+    <h2>Tracks</h2>
+    <ul id="tracks"></ul>
+
+    <script>
+        const { ApolloClient, InMemoryCache, HttpLink, gql } = window['apollo-client'];
+        const { HttpLink } = window['apollo-link-http'];
+        const { InMemoryCache } = window['apollo-cache-inmemory'];
+
+        const client = new ApolloClient({
+            link: new HttpLink({ uri: 'http://localhost:5000/graphql' }),
+            cache: new InMemoryCache()
+        });
+
+        const FETCH_DATA = gql`
+            query {
+                artists {
+                    id
+                    name
+                }
+                albums {
+                    id
+                    title
+                    artist {
+                        id
+                        name
+                    }
+                }
+                tracks {
+                    id
+                    title
+                    album {
+                        id
+                        title
+                    }
+                }
+            }
+        `;
+
+        client.query({
+            query: FETCH_DATA
+        }).then(result => {
+            const { artists, albums, tracks } = result.data;
+
+            // Display artists
+            const artistList = document.getElementById('artists');
+            artists.forEach(artist => {
+                const li = document.createElement('li');
+                li.textContent = `${artist.name} (ID: ${artist.id})`;
+                artistList.appendChild(li);
+            });
+
+            // Display albums
+            const albumList = document.getElementById('albums');
+            albums.forEach(album => {
+                const li = document.createElement('li');
+                li.textContent = `${album.title} (ID: ${album.id}) - Artist: ${album.artist.name}`;
+                albumList.appendChild(li);
+            });
+
+            // Display tracks
+            const trackList = document.getElementById('tracks');
+            tracks.forEach(track => {
+                const li = document.createElement('li');
+                li.textContent = `${track.title} (ID: ${track.id}) - Album: ${track.album.title}`;
+                trackList.appendChild(li);
+            });
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    </script>
+</body>
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>
